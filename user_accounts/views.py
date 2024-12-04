@@ -8,7 +8,6 @@ from .serializers import RegisterSerializer, LoginSerializer
 from .utils import generate_otp_for_user, send_otp_via_email
 
 
-
 class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)

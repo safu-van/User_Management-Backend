@@ -10,7 +10,7 @@ def generate_otp_for_user(user):
     otp = random.randint(1000, 9999)
 
     # Save otp to database
-    otp_instance, _  = UserOTP.objects.get_or_create(user=user)
+    otp_instance, _ = UserOTP.objects.get_or_create(user=user)
     otp_instance.otp = otp
     otp_instance.save()
 

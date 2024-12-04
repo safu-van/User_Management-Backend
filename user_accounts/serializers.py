@@ -30,15 +30,17 @@ class RegisterSerializer(serializers.Serializer):
     def validate_mobile(self, mobile):
         if not mobile.isdigit() or len(mobile) != 10:
             raise serializers.ValidationError("Invalid number")
-        
+
         if User.objects.filter(mobile=mobile).exists():
             raise serializers.ValidationError("mobile number already exists")
 
         return mobile
-    
+
     def validate_password(self, password):
         # At least one uppercase letter, one lowercase letter, one digit, one special character, and minimum 8 characters
-        pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+        pattern = (
+            r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+        )
         if not re.match(pattern, password):
             raise serializers.ValidationError(
                 "Password must be at least 8 characters long, include one uppercase letter, "
