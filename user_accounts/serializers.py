@@ -13,18 +13,16 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate_email(self, email):
-        """
-        - Convert email to lowercase.
-        - Check if the email already exists.
-        - If the email exists but is not verified, delete the user.
-        """
         email = email.lower()
+
+        # Check if the email already exists
         user = User.objects.filter(email=email).first()
         if user:
             if user.is_verified:
                 raise serializers.ValidationError("email already exists")
             else:
                 user.delete()
+
         return email
 
     def validate_mobile(self, mobile):
@@ -37,7 +35,6 @@ class RegisterSerializer(serializers.Serializer):
         return mobile
 
     def validate_password(self, password):
-        # At least one uppercase letter, one lowercase letter, one digit, one special character, and minimum 8 characters
         pattern = (
             r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
         )
@@ -49,16 +46,40 @@ class RegisterSerializer(serializers.Serializer):
         return password
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            name=validated_data["name"],
-            email=validated_data["email"],
-            mobile=validated_data["mobile"],
-            password=validated_data["password"],
-        )
-
-        return user
+        return User.objects.create_user(**validated_data)
 
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+
+class OTPSerializer(serializers.Serializer):
+    """
+    Serializer for handling OTP-related operations, used in two distinct scenarios:
+
+    1. Send OTP:
+       - In this scenario, the 'email' field is required, and the 'otp' field is optional.
+       - The serializer validates the provided 'email' for sending an OTP to the user.
+
+    2. Verify OTP:
+       - In this scenario, both the 'email' and 'otp' fields are required.
+       - The serializer ensures that 'otp' validation is required (indicated by the 'otp_field' context).
+
+    Context:
+        - 'otp_field' (bool): A boolean flag passed via the serializer context to indicate whether
+          OTP validation is required. When 'True', the serializer ensures the 'otp' field is present.
+    """
+
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=4, required=False)
+
+    def validate(self, data):
+        # Check the context for the 'otp_field' flag
+        is_otp = self.context.get("otp_field")
+
+        # If OTP validation is required, ensure the otp field is not empty
+        if is_otp and not data.get("otp"):
+            raise serializers.ValidationError({"otp": "OTP is required"})
+
+        return data
