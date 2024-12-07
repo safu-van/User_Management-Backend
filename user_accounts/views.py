@@ -35,7 +35,7 @@ class LoginView(APIView):
 
         # Authenticate user
         user = authenticate(email=email, password=password)
-        if user:
+        if user and user.is_verified:
             # Generate tokens for the user
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token

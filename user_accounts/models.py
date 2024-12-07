@@ -1,7 +1,8 @@
+from datetime import timedelta
+
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from datetime import timedelta
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
@@ -44,6 +45,8 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
     mobile = models.CharField(max_length=15, unique=True)
+    profile_img_id = models.CharField(max_length=255, null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
